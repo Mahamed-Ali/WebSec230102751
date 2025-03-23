@@ -17,11 +17,10 @@
                 <a class="nav-link" href="./minitest">Mini Test</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="./products">products</a>
-            </li>
+                <a class="nav-link" href="{{route('products_list')}}">Products</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{route('products_list')}}">Products</a>
+                <a class="nav-link" href="{{route('users_list')}}">users</a>
             </li>
            
         </ul>
