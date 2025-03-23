@@ -6,7 +6,7 @@
         <div class="card-body">
          @foreach (range(1, 100) as $i)
             @if(isPrime($i))
-                <span class="badge bg-primary">{{$i}}</span>
+                <span class="badge bg-success">{{$i}}</span>
             @else
                 <span class="badge bg-secondary">{{$i}}</span>
             @endif

@@ -1,7 +1,7 @@
 @extends('layouts.master')
 @section('title', 'Multiplication Table')
 @section('content')
-    <div class="card m-4 col-sm-2">
+    <div class="card bg-success text-white m-4 col-sm-2">
         <div class="card-header">{{$j}} Multiplication Table</div>
         <div class="card-body">
             <table>
