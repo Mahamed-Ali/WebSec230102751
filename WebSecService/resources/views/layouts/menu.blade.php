@@ -17,10 +17,10 @@
                 <a class="nav-link" href="./minitest">Mini Test</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{route('products_list')}}">Products</a>
+                <a class="nav-link" href="{{route('grades_list')}}">Grades</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{route('grades_list')}}">Grades</a>
+                <a class="nav-link" href="{{route('products_list')}}">Products</a>
             </li>
             @can('show_users')
             <li class="nav-item">
@@ -47,3 +47,4 @@
         </ul>
     </div>
 </nav>
+      

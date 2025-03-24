@@ -25,38 +25,37 @@ Route::get('products/edit/{product?}', [ProductsController::class, 'edit'])->nam
 Route::post('products/save/{product?}', [ProductsController::class, 'save'])->name('products_save');
 Route::get('products/delete/{product}', [ProductsController::class, 'delete'])->name('products_delete');
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/multable/{number?}', function ($number=10) {
-    $j = $number??2;
-    return view('multable',compact("j")); 
-});
-
-Route::get('/even', function () {
-    return view('even'); 
-});
-
-Route::get('/prime', function () {
-    return view('prime'); 
-});
-
-Route::get('/minitest', function () {
-    $bills=[
-        ['item' => 'Apples', 'quantity' => 2, 'price' => 3.50],
-        ['item' => 'Bread', 'quantity' => 1, 'price' => 2.00],
-        ['item' => 'Milk', 'quantity' => 1, 'price' => 2.75],
-        ['item' => 'Cheese', 'quantity' => 1, 'price' => 5.00],
-    ];
-    return view('minitest',compact("bills")); 
-});
-
-
+// Grades CRUD
 Route::get('grades', [GradesController::class, 'list'])->name('grades_list');
 Route::get('grades/add', [GradesController::class, 'add'])->name('grades_add');
 Route::get('grades/edit/{grade}', [GradesController::class, 'edit'])->name('grades_edit');
 Route::post('grades/save/{grade?}', [GradesController::class, 'save'])->name('grades_save');
 Route::get('grades/delete/{grade}', [GradesController::class, 'delete'])->name('grades_delete');
 
+// Static Pages
+Route::get('/', function () {
+    return view('welcome');
+});
 
+Route::get('/multable/{number?}', function ($number = 10) {
+        $j = 5;
+    return view('multable', compact("j"));
+});
+
+Route::get('/even', function () {
+    return view('even');
+});
+
+Route::get('/prime', function () {
+    return view('prime');
+});
+
+Route::get('/minitest', function () {
+    $bills = [
+        ['item' => 'Apples', 'quantity' => 2, 'price' => 3.50],
+        ['item' => 'Bread', 'quantity' => 1, 'price' => 2.00],
+        ['item' => 'Milk', 'quantity' => 1, 'price' => 2.75],
+        ['item' => 'Cheese', 'quantity' => 1, 'price' => 5.00],
+    ];
+    return view('minitest', compact("bills"));
+});
