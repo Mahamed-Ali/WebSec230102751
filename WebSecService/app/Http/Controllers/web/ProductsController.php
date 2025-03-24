@@ -12,10 +12,10 @@ class ProductsController extends Controller {
 
 	use ValidatesRequests;
 
-	// public function __construct()
-    // {
-    //     $this->middleware('auth:web')->except('list');
-    // }
+	public function __construct()
+    {
+        $this->middleware('auth:web')->except('list');
+    }
 
 	public function list(Request $request) {
 

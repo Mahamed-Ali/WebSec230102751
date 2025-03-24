@@ -1,4 +1,6 @@
+
 <?php
+   
 if (!function_exists('isPrime')) {
     function isPrime($number)
     {
@@ -10,4 +12,4 @@ if (!function_exists('isPrime')) {
         }
         return true;
     }
-} 
+}
