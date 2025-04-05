@@ -3,7 +3,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\ProductsController;
 use App\Http\Controllers\Web\UsersController;
-use App\Http\Controllers\Web\GradesController;
 
 Route::get('register', [UsersController::class, 'register'])->name('register');
 Route::post('register', [UsersController::class, 'doRegister'])->name('do_register');
@@ -25,21 +24,14 @@ Route::get('products/edit/{product?}', [ProductsController::class, 'edit'])->nam
 Route::post('products/save/{product?}', [ProductsController::class, 'save'])->name('products_save');
 Route::get('products/delete/{product}', [ProductsController::class, 'delete'])->name('products_delete');
 
-// Grades CRUD
-Route::get('grades', [GradesController::class, 'list'])->name('grades_list');
-Route::get('grades/add', [GradesController::class, 'add'])->name('grades_add');
-Route::get('grades/edit/{grade}', [GradesController::class, 'edit'])->name('grades_edit');
-Route::post('grades/save/{grade?}', [GradesController::class, 'save'])->name('grades_save');
-Route::get('grades/delete/{grade}', [GradesController::class, 'delete'])->name('grades_delete');
-
-// Static Pages
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/multable/{number?}', function ($number = 10) {
-        $j = 5;
-    return view('multable', compact("j"));
+Route::get('/multable', function (Request $request) {
+    $j = $request->number??5;
+    $msg = $request->msg;
+    return view('multable', compact("j", "msg"));
 });
 
 Route::get('/even', function () {
@@ -50,12 +42,6 @@ Route::get('/prime', function () {
     return view('prime');
 });
 
-Route::get('/minitest', function () {
-    $bills = [
-        ['item' => 'Apples', 'quantity' => 2, 'price' => 3.50],
-        ['item' => 'Bread', 'quantity' => 1, 'price' => 2.00],
-        ['item' => 'Milk', 'quantity' => 1, 'price' => 2.75],
-        ['item' => 'Cheese', 'quantity' => 1, 'price' => 5.00],
-    ];
-    return view('minitest', compact("bills"));
+Route::get('/test', function () {
+    return view('test');
 });
