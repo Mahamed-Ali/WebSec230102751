@@ -185,4 +185,38 @@ class UsersController extends Controller {
 
         return redirect(route('profile', ['user'=>$user->id]));
     }
+    public function products()
+    {
+        return $this->belongsToMany(Product::class)->withTimestamps();
+    }
+
+    public function chargeCredit(Request $request, User $user)
+    {
+        if (!auth()->user()->hasPermissionTo('charge_credit')) {
+            abort(401);
+        }
+
+        $request->validate([
+            'amount' => 'required|numeric|min:1',
+        ]);
+
+        $user->credit += $request->amount;
+        $user->save();
+
+        return redirect()->route('profile', ['user' => $user->id])
+                        ->with('success', 'Credit added successfully.');
+    }
+
+    public function listCustomers(Request $request)
+    {
+        if (!auth()->user()->hasPermissionTo('view_customers')) {
+            abort(401);
+        }
+
+        $customers = User::role('Customer')->get();
+
+        return view('users.customers', compact('customers'));
+    }
+
+
 } 

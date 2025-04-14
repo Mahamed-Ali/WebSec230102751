@@ -77,6 +77,14 @@
                         <tr><th>Price</th><td>{{$product->price}}</td>
                         <tr><th>Description</th><td>{{$product->description}}</td></tr>
                     </table>
+
+                    @can('buy_products')
+                    <form method="POST" action="{{ route('products_buy', $product->id) }}">
+                        @csrf
+                         <button type="submit" class="btn btn-warning mt-2">Buy</button>
+                    </form>
+                    @endcan
+
                 </div>
             </div>
         </div>

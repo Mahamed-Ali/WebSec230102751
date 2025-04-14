@@ -18,6 +18,28 @@ Route::get('users/edit_password/{user?}', [UsersController::class, 'editPassword
 Route::post('users/save_password/{user}', [UsersController::class, 'savePassword'])->name('save_password');
 
 
+Route::post('products/buy/{product}', [ProductsController::class, 'buy'])->name('products_buy');
+
+
+Route::get('/my-products', [ProductsController::class, 'myProducts'])->name('my_products');
+
+Route::get('purchases', [ProductsController::class, 'purchases'])->name('products_purchases');
+
+Route::post('/profile/{user}/charge-credit', [UsersController::class, 'chargeCredit'])->name('charge_credit');
+
+Route::post('/users/charge/{user}', [UsersController::class, 'chargeCredit'])->name('charge_credit');
+
+Route::post('/users/charge-credit/{user}', [UsersController::class, 'chargeCredit'])->name('users_charge_credit');
+
+Route::get('/customers', [UsersController::class, 'listCustomers'])->name('customers_list');
+
+Route::post('users/charge/{user}', [UsersController::class, 'chargeCredit'])->name('users.charge_credit');
+
+
+
+
+
+
 
 Route::get('products', [ProductsController::class, 'list'])->name('products_list');
 Route::get('products/edit/{product?}', [ProductsController::class, 'edit'])->name('products_edit');

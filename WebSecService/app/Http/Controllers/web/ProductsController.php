@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Web;
 
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use DB;
 
 use App\Http\Controllers\Controller;
@@ -72,4 +73,45 @@ class ProductsController extends Controller {
 
 		return redirect()->route('products_list');
 	}
+
+	public function buy(Request $request, Product $product)
+	{
+		$user = Auth::user();
+
+		// Check credit
+		if ($user->credit < $product->price) {
+			return redirect()->back()->withErrors('Insufficient credit.');
+		}
+
+		// Check product availability
+		if ($product->quantity <= 0) {
+			return redirect()->back()->withErrors('Product out of stock.');
+		}
+
+		// Deduct credit and product quantity
+		$user->credit -= $product->price;
+		$user->save();
+
+		$product->quantity -= 1;
+		$product->save();
+
+		// Attach to purchases (Assuming pivot table user_product)
+		$user->products()->attach($product->id);
+
+		return redirect()->route('products_list')->with('success', 'Product purchased successfully.');
+	}
+	public function myProducts()
+	{
+		$products = auth()->user()->products;
+		return view('products.my', compact('products'));
+	}
+	public function purchases()
+	{
+		$user = auth()->user();
+		$products = $user->products; // Assuming the relation is defined
+
+		return view('products.purchases', compact('products'));
+	}
+
+
 } 
