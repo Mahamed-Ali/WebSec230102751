@@ -4,114 +4,101 @@ namespace App\Http\Controllers\Web;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use DB;
-
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 
 class ProductsController extends Controller {
 
-	use ValidatesRequests;
+    use ValidatesRequests;
 
-	public function __construct()
+    public function __construct()
     {
         $this->middleware('auth:web')->except('list');
     }
 
-	public function list(Request $request) {
+    public function list(Request $request) {
+        $query = Product::select("*");
 
-		$query = Product::select("products.*");
+        $query->when($request->keywords,
+            fn($q) => $q->where("name", "like", "%$request->keywords%"));
 
-		$query->when($request->keywords, 
-		fn($q)=> $q->where("name", "like", "%$request->keywords%"));
+        $query->when($request->min_price,
+            fn($q) => $q->where("price", ">=", $request->min_price));
 
-		$query->when($request->min_price, 
-		fn($q)=> $q->where("price", ">=", $request->min_price));
-		
-		$query->when($request->max_price, fn($q)=> 
-		$q->where("price", "<=", $request->max_price));
-		
-		$query->when($request->order_by, 
-		fn($q)=> $q->orderBy($request->order_by, $request->order_direction??"ASC"));
+        $query->when($request->max_price,
+            fn($q) => $q->where("price", "<=", $request->max_price));
 
-		$products = $query->get();
+        $query->when($request->order_by,
+            fn($q) => $q->orderBy($request->order_by, $request->order_direction ?? "ASC"));
 
-		return view('products.list', compact('products'));
-	}
+        $products = $query->get();
+        return view('products.list', compact('products'));
+    }
 
-	public function edit(Request $request, Product $product = null) {
+    public function edit(Request $request, Product $product = null) {
+        $product = $product ?? new Product();
+        return view('products.edit', compact('product'));
+    }
 
-		if(!auth()->user()) return redirect('/');
+    public function save(Request $request, Product $product = null) {
+        $this->validate($request, [
+            'code' => ['required', 'string', 'max:32'],
+            'name' => ['required', 'string', 'max:128'],
+            'model' => ['required', 'string', 'max:256'],
+            'description' => ['required', 'string', 'max:1024'],
+            'price' => ['required', 'numeric'],
+            'quantity' => ['required', 'integer', 'min:0'],
+        ]);
 
-		$product = $product??new Product();
+        $product = $product ?? new Product();
+        $product->fill($request->all());
+        $product->save();
 
-		return view('products.edit', compact('product'));
-	}
+        return redirect()->route('products_list');
+    }
 
-	public function save(Request $request, Product $product = null) {
+    public function delete(Request $request, Product $product) {
+        if (!auth()->user()->hasPermissionTo('delete_products')) abort(401);
+        $product->delete();
+        return redirect()->route('products_list');
+    }
 
-		$this->validate($request, [
-	        'code' => ['required', 'string', 'max:32'],
-	        'name' => ['required', 'string', 'max:128'],
-	        'model' => ['required', 'string', 'max:256'],
-	        'description' => ['required', 'string', 'max:1024'],
-	        'price' => ['required', 'numeric'],
-	    ]);
+    public function confirm(Product $product) {
+        return view('products.buy_confirm', compact('product'));
+    }
 
-		$product = $product??new Product();
-		$product->fill($request->all());
-		$product->save();
-
-		return redirect()->route('products_list');
-	}
-
-	public function delete(Request $request, Product $product) {
-
-		if(!auth()->user()->hasPermissionTo('delete_products')) abort(401);
-
-		$product->delete();
-
-		return redirect()->route('products_list');
-	}
-
-	public function buy(Request $request, Product $product)
-	{
+    public function buy(Request $request, Product $product) {
 		$user = Auth::user();
-
-		// Check credit
-		if ($user->credit < $product->price) {
-			return redirect()->back()->withErrors('Insufficient credit.');
+	
+		if (!$user->hasPermissionTo('buy_products')) abort(401);
+	
+		$quantity = (int) $request->input('quantity', 1);
+		$total_price = $product->price * $quantity;
+	
+		if ($user->credit < $total_price) {
+			return view('products.insufficient_credit', compact('product'));
 		}
-
-		// Check product availability
-		if ($product->quantity <= 0) {
-			return redirect()->back()->withErrors('Product out of stock.');
+	
+		if ($product->quantity < $quantity) {
+			return redirect()->back()->withErrors("Not enough stock.");
 		}
-
-		// Deduct credit and product quantity
-		$user->credit -= $product->price;
+	
+		// Execute Purchase
+		$user->credit -= $total_price;
 		$user->save();
-
-		$product->quantity -= 1;
+	
+		$product->quantity -= $quantity;
 		$product->save();
-
-		// Attach to purchases (Assuming pivot table user_product)
-		$user->products()->attach($product->id);
-
+	
+		// سجل الكمية في جدول العلاقة
+		$user->products()->attach($product->id, ['quantity' => $quantity]);
+	
 		return redirect()->route('products_list')->with('success', 'Product purchased successfully.');
 	}
-	public function myProducts()
-	{
-		$products = auth()->user()->products;
-		return view('products.my', compact('products'));
-	}
-	public function purchases()
-	{
-		$user = auth()->user();
-		$products = $user->products; // Assuming the relation is defined
-
-		return view('products.purchases', compact('products'));
-	}
-
-
-} 
+	
+    public function myPurchases() {
+        $user = auth()->user();
+        $products = $user->products;
+        return view('products.purchases', compact('products'));
+    }
+}

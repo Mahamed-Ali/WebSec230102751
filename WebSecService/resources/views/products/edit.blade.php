@@ -19,6 +19,11 @@
             <label for="model" class="form-label">Model:</label>
             <input type="text" class="form-control" placeholder="Model" name="model" required value="{{$product->model}}">
         </div>
+        <div class="col-6">
+            <label for="quantity" class="form-label">Quantity:</label>
+            <input type="number" class="form-control" placeholder="Quantity" name="quantity" required value="{{$product->quantity}}">
+        </div>
+
     </div>
     <div class="row mb-2">
         <div class="col">

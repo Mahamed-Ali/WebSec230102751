@@ -49,13 +49,22 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    public function products() 
+
+    public function products()
     {
-        return $this->belongsToMany(Product::class, 'product_user');
+        // return $this->belongsToMany(Product::class, 'product_user', 'user_id', 'product_id')->withTimestamps();
+        return $this->belongsToMany(Product::class)->withPivot('quantity')->withTimestamps();
+
     }
 
-    public function boughtProducts()
-    {
-        return $this->belongsToMany(Product::class, 'product_user')->withTimestamps();
-    }
+
+
+
+
+
+
+
+
+
+
 }

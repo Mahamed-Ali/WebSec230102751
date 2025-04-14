@@ -1,36 +1,46 @@
 @extends('layouts.master')
-@section('title', 'Purchased Products')
+
+@section('title', 'My Purchases')
+
 @section('content')
+    <div class="container mt-4">
+        <h1 class="mb-4">My Purchased Products</h1>
 
-<div class="row mt-4">
-    <div class="col">
-        <h2>Your Purchased Products</h2>
+        @if($products->count())
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Photo</th>
+                        <th>Name</th>
+                        <th>Model</th>
+                        <th>Code</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Description</th>
+                        <th>Purchased At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($products as $product)
+                        <tr>
+                            <td>
+                                <img src="{{ asset('images/' . $product->photo) }}" alt="{{ $product->name }}" width="80">
+                            </td>
+                            <td>{{ $product->name }}</td>
+                            <td>{{ $product->model }}</td>
+                            <td>{{ $product->code }}</td>
+                            <td>{{ $product->price }} EGP</td>
+                            <td>{{ $product->pivot->quantity }}</td>
+                            <td>{{ $product->price * ($product->pivot->quantity ?? 1) }} EGP</td>
+                            <td>{{ $product->description }}</td>
+                            <td>{{ $product->pivot->created_at->format('Y-m-d H:i') }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @else
+            <div class="alert alert-info">You haven't purchased any products yet.</div>
+        @endif
     </div>
-</div>
-
-@if($products->isEmpty())
-    <div class="alert alert-info mt-3">You haven't purchased any products yet.</div>
-@else
-    @foreach($products as $product)
-        <div class="card mt-3">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-sm-12 col-lg-4">
-                        <img src="{{asset("images/$product->photo")}}" class="img-thumbnail" alt="{{$product->name}}" width="100%">
-                    </div>
-                    <div class="col-sm-12 col-lg-8 mt-3">
-                        <h4>{{$product->name}}</h4>
-                        <table class="table table-striped">
-                            <tr><th>Model</th><td>{{$product->model}}</td></tr>
-                            <tr><th>Code</th><td>{{$product->code}}</td></tr>
-                            <tr><th>Price</th><td>{{$product->price}} EGP</td></tr>
-                            <tr><th>Description</th><td>{{$product->description}}</td></tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endforeach
-@endif
-
 @endsection
