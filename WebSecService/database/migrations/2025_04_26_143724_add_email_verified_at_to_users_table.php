@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('product_user', function (Blueprint $table) {
-            //
+        Schema::table('users', function (Blueprint $table) {
+            $table->timestamp('email_verified_at')->nullable();
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('product_user', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             //
         });
     }

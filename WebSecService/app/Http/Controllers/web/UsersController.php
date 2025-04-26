@@ -1,9 +1,6 @@
 <?php
 namespace App\Http\Controllers\Web;
 
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\VerificationEmail;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Http\Request;
@@ -14,6 +11,11 @@ use DB;
 use Artisan;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerificationEmail;
+use Carbon\Carbon;
+
 
 class UsersController extends Controller {
 
@@ -31,23 +33,31 @@ class UsersController extends Controller {
         return view('users.register');
     }
 
-    public function doRegister(Request $request) {
-    	try {
-    		$this->validate($request, [
-		        'name' => ['required', 'string', 'min:5'],
-		        'email' => ['required', 'email', 'unique:users'],
-		        'password' => ['required', 'confirmed', Password::min(8)->numbers()->letters()->mixedCase()->symbols()],
-	    	]);
-    	} catch(\Exception $e) {
-    		return redirect()->back()->withInput($request->input())->withErrors('Invalid registration information.');
-    	}
+    public function doRegister(Request $request)
+    {
+        try {
+            $this->validate($request, [
+                'name' => ['required', 'string', 'min:5'],
+                'email' => ['required', 'email', 'unique:users'],
+                'password' => ['required', 'confirmed', Password::min(8)->numbers()->letters()->mixedCase()->symbols()],
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput($request->input())->withErrors('Invalid registration information.');
+        }
 
-    	$user = new User();
-	    $user->name = $request->name;
-	    $user->email = $request->email;
-	    $user->password = bcrypt($request->password);
-	    $user->save();
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = bcrypt($request->password);
+        $user->save();
         $user->assignRole('Customer');
+
+        // Send Email Verification
+        $title = "Verification Link";
+        $token = Crypt::encryptString(json_encode(['id' => $user->id, 'email' => $user->email]));
+        $link = route('verify', ['token' => $token]);
+        Mail::to($user->email)->send(new VerificationEmail($link, $user->name));
+
         return redirect('/');
     }
 
@@ -56,11 +66,21 @@ class UsersController extends Controller {
     }
 
     public function doLogin(Request $request) {
-    	if(!Auth::attempt(['email' => $request->email, 'password' => $request->password]))
+        if(!Auth::attempt(['email' => $request->email, 'password' => $request->password]))
             return redirect()->back()->withInput($request->input())->withErrors('Invalid login information.');
-        Auth::setUser(User::where('email', $request->email)->first());
+    
+        $user = User::where('email', $request->email)->first();
+        Auth::setUser($user);
+    
+        if(!$user->email_verified_at) {
+            Auth::logout(); 
+            return redirect()->back()->withInput($request->input())->withErrors('Your email is not verified.');
+        }
+    
         return redirect('/');
     }
+    
+
 
     public function doLogout(Request $request) {
     	Auth::logout();
@@ -198,7 +218,17 @@ class UsersController extends Controller {
 
         return redirect()->route('list_customers')->with('success', 'Credit added successfully.');
     }
-   
+
+    public function verify(Request $request) 
+    {
+
+        $decryptedData = json_decode(Crypt::decryptString($request->token), true);
+        $user = User::find($decryptedData['id']);
+        if(!$user) abort(401);
+        $user->email_verified_at = Carbon::now();
+        $user->save();
+        return view('users.verified', compact('user'));
+       }
     
        
 
