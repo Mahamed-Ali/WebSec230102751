@@ -84,3 +84,8 @@ Route::post('/forgot-password', [App\Http\Controllers\Web\UsersController::class
 
 Route::get('/reset-password', [App\Http\Controllers\Web\UsersController::class, 'resetPasswordPage'])->name('password.reset');
 Route::post('/reset-password', [App\Http\Controllers\Web\UsersController::class, 'resetPasswordSave'])->name('password.update');
+
+
+Route::get('/auth/google',[UsersController::class, 'redirectToGoogle'])->name('login_with_google');
+
+Route::get('/auth/google/callback',[UsersController::class, 'handleGoogleCallback']);

@@ -23,12 +23,8 @@
       </div>
       <div class="form-group mb-2">
         <button type="submit" class="btn btn-primary">Login</button>
+        <a href="{{route('login_with_google')}}" class="btn btn-success">Login with Google</a>
       </div>
-
-      <div class="mt-3">
-        <a href="{{ route('password.request') }}">Forgot Password?</a>
-      </div>
-
     </form>
     </div>
   </div>
