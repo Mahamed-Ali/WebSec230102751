@@ -78,3 +78,9 @@ Route::post('/forgot-password', [App\Http\Controllers\Web\UsersController::class
 
 Route::get('/change-password', [App\Http\Controllers\Web\UsersController::class, 'changePasswordPage'])->name('password.change');
 Route::post('/change-password', [App\Http\Controllers\Web\UsersController::class, 'saveNewPassword'])->name('password.update');
+
+Route::get('/forgot-password', [App\Http\Controllers\Web\UsersController::class, 'forgotPasswordPage'])->name('password.request');
+Route::post('/forgot-password', [App\Http\Controllers\Web\UsersController::class, 'sendResetLink'])->name('password.email');
+
+Route::get('/reset-password', [App\Http\Controllers\Web\UsersController::class, 'resetPasswordPage'])->name('password.reset');
+Route::post('/reset-password', [App\Http\Controllers\Web\UsersController::class, 'resetPasswordSave'])->name('password.update');

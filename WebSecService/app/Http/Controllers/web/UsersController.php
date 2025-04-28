@@ -293,5 +293,60 @@ class UsersController extends Controller {
         return redirect('/')->with('success', 'Password changed successfully.');
     }
 
+    public function sendResetLink(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email']
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->withErrors(['email' => 'This email is not registered.']);
+        }
+
+        $token = Crypt::encryptString(json_encode([
+            'id' => $user->id,
+            'email' => $user->email,
+            'time' => now()->addMinutes(30) // اللينك صالح 30 دقيقة
+        ]));
+
+        $resetLink = route('password.reset', ['token' => $token]);
+
+        Mail::raw('Click here to reset your password: ' . $resetLink, function ($message) use ($user) {
+            $message->to($user->email)
+                    ->subject('Reset Password');
+        });
+
+        return redirect('/login')->with('success', 'Reset password link sent to your email.');
+    }
+
+    public function resetPasswordPage(Request $request)
+    {
+        $token = $request->token;
+        return view('users.reset_password', compact('token'));
+    }
+
+    public function resetPasswordSave(Request $request)
+    {
+        $request->validate([
+            'token' => ['required'],
+            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::min(8)->mixedCase()->letters()->numbers()->symbols()],
+        ]);
+
+        $decrypted = json_decode(Crypt::decryptString($request->token), true);
+
+        $user = User::find($decrypted['id']);
+
+        if (!$user || $user->email != $decrypted['email']) {
+            return redirect('/login')->withErrors(['email' => 'Invalid or expired reset link.']);
+        }
+
+        $user->password = bcrypt($request->password);
+        $user->save();
+
+        return redirect('/login')->with('success', 'Password reset successfully.');
+    }
+
 
 }
