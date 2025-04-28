@@ -76,6 +76,11 @@ class UsersController extends Controller {
             Auth::logout(); 
             return redirect()->back()->withInput($request->input())->withErrors('Your email is not verified.');
         }
+
+        if (session()->has('temporary_password')) {
+            session()->forget('temporary_password');
+            return redirect()->route('password.change');
+        }
     
         return redirect('/');
     }
@@ -247,9 +252,11 @@ class UsersController extends Controller {
             return back()->withErrors(['email' => 'This email is not registered.']);
         }
 
-        $temporaryPassword = \Str::random(8); // باسورد مؤقت 8 حروف
+        $temporaryPassword = \Str::random(8); 
         $user->password = bcrypt($temporaryPassword);
-        $user->save();
+        $user->save(); 
+
+        session(['temporary_password' => true]);
 
         Mail::raw('Your temporary password is: ' . $temporaryPassword, function ($message) use ($user) {
             $message->to($user->email)
@@ -257,6 +264,33 @@ class UsersController extends Controller {
         });
 
         return redirect('/login')->with('success', 'Temporary password sent to your email.');
+    }
+
+
+    public function changePasswordPage()
+    {
+        if (!auth()->check()) {
+            return redirect('/login');
+        }
+
+        return view('users.change_password');
+    }
+
+    public function saveNewPassword(Request $request)
+    {
+        if (!auth()->check()) {
+            return redirect('/login');
+        }
+
+        $request->validate([
+            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::min(8)->mixedCase()->letters()->numbers()->symbols()],
+        ]);
+
+        $user = auth()->user();
+        $user->password = bcrypt($request->password);
+        $user->save();
+
+        return redirect('/')->with('success', 'Password changed successfully.');
     }
 
 
