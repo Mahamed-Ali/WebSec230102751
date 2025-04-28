@@ -230,6 +230,34 @@ class UsersController extends Controller {
         return view('users.verified', compact('user'));
        }
     
-       
+    public function forgotPasswordPage()
+    {
+        return view('users.forgot_password');
+    }  
+    
+    public function sendTemporaryPassword(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email']
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->withErrors(['email' => 'This email is not registered.']);
+        }
+
+        $temporaryPassword = \Str::random(8); // باسورد مؤقت 8 حروف
+        $user->password = bcrypt($temporaryPassword);
+        $user->save();
+
+        Mail::raw('Your temporary password is: ' . $temporaryPassword, function ($message) use ($user) {
+            $message->to($user->email)
+                    ->subject('Temporary Password');
+        });
+
+        return redirect('/login')->with('success', 'Temporary password sent to your email.');
+    }
+
 
 }

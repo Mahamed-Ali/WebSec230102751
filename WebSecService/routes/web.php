@@ -70,3 +70,10 @@ Route::get('users/{user}/credit', [UsersController::class, 'addCredit'])->name('
 Route::post('users/{user}/credit', [UsersController::class, 'saveCredit'])->name('save_credit');
 
 Route::get('verify', [UsersController::class, 'verify'])->name('verify');
+
+
+// صفحة كتابة الإيميل
+Route::get('/forgot-password', [App\Http\Controllers\Web\UsersController::class, 'forgotPasswordPage'])->name('password.request');
+
+// استلام الإيميل وإرسال الباسورد المؤقت
+Route::post('/forgot-password', [App\Http\Controllers\Web\UsersController::class, 'sendTemporaryPassword'])->name('password.email');
