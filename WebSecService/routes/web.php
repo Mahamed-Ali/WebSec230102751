@@ -87,5 +87,13 @@ Route::post('/reset-password', [App\Http\Controllers\Web\UsersController::class,
 
 
 Route::get('/auth/google',[UsersController::class, 'redirectToGoogle'])->name('login_with_google');
-
 Route::get('/auth/google/callback',[UsersController::class, 'handleGoogleCallback']);
+
+Route::get('/auth/facebook',[UsersController::class, 'redirectToFacebook'])->name('login_with_facebook');
+Route::get('/auth/facebook/callback',[UsersController::class, 'handleFacebookCallback']);
+
+Route::get('/auth/microsoft', [UsersController::class, 'redirectToMicrosoft'])->name('login_with_microsoft');
+Route::get('/auth/microsoft/callback', [UsersController::class, 'handleMicrosoftCallback']);
+
+
+

@@ -24,7 +24,11 @@
       <div class="form-group mb-2">
         <button type="submit" class="btn btn-primary">Login</button>
         <a href="{{route('login_with_google')}}" class="btn btn-success">Login with Google</a>
+        <a href="{{route('login_with_facebook')}}" class="btn btn-success">Login with Facebook</a>
+        <a href="{{ route('login_with_microsoft') }}" class="btn btn-info">Login with Microsoft</a>
+
       </div>
+      
     </form>
     </div>
   </div>

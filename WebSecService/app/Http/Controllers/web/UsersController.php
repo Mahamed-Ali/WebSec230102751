@@ -373,5 +373,52 @@ class UsersController extends Controller {
             return redirect('/login')->with('error', 'Google login failed.'); // Handle errors
             }
     }
-       
+
+    public function redirectToFacebook()
+    {
+    return Socialite::driver('facebook')->redirect();
+    }
+    public function handleFacebookCallback() 
+    {
+        $facebookUser = Socialite::driver('facebook')->stateless()->user();
+        try {
+            $facebookUser = Socialite::driver('facebook')->user();
+            $user = User::updateOrCreate([
+            'facebook_id' => $facebookUser->id,
+            ], [
+            'name' => $facebookUser->name,
+            'email' => $facebookUser->email,
+            'facebook_token' => $facebookUser->token,
+        ]);
+        Auth::login($user);
+        return redirect('/');
+        } catch (\Exception $e) {
+            return redirect('/login')->with('error', 'Facebook login failed.'); // Handle errors
+        }
+    }
+    
+    public function redirectToMicrosoft()
+    {
+        return \Socialite::driver('microsoft')->redirect();
+    }
+
+    public function handleMicrosoftCallback()
+    {
+        try {
+            $microsoftUser = \Socialite::driver('microsoft')->user();
+
+            $user = User::updateOrCreate([
+                'microsoft_id' => $microsoftUser->id,
+            ], [
+                'name' => $microsoftUser->name,
+                'email' => $microsoftUser->email,
+            ]);
+
+            Auth::login($user);
+            return redirect('/');
+        } catch (\Exception $e) {
+            return redirect('/login')->with('error', 'Microsoft login failed.');
+        }
+    }
+
 }
