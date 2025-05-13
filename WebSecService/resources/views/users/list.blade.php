@@ -20,6 +20,11 @@
     </div>
 </form>
 
+@foreach($products as $product)
+    <li>{!! $product->name !!}</li>
+@endforeach
+
+
 <div class="card mt-2">
   <div class="card-body">
     <table class="table">

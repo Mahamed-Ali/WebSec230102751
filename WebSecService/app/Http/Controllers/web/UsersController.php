@@ -421,4 +421,16 @@ class UsersController extends Controller {
         }
     }
 
+    public function collect(Request $request)
+    {
+        $name = $request->query('name');
+        $credit = $request->query('credit');
+
+            // مؤقتًا نعرضهم على اللوج أو الشاشة للتجربة
+        \Log::info("Collected from browser: $name - $credit");
+
+        return response()->json(['message' => 'Received', 'name' => $name, 'credit' => $credit]);
+    }
+
+
 }

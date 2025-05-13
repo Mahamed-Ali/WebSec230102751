@@ -70,8 +70,17 @@
                         </div>
                     </div>
 
+
+                    @if(!empty(request()->keywords))
+                        <div class="card mt-2">
+                            <div class="card-body">
+                                view search results: <span> {{!!request()->keywords!!}}</span>
+                            </div>
+                        </div>
+                    @endif
+
                     <table class="table table-striped">
-                        <tr><th width="20%">Name</th><td>{{$product->name}}</td></tr>
+                        <tr><th width="20%">Name</th><td>{!! $product->name !!}</td></tr>
                         <tr><th>Model</th><td>{{$product->model}}</td></tr>
                         <tr><th>Code</th><td>{{$product->code}}</td></tr>
                         <tr><th>Price</th><td>{{$product->price}} EGP</td></tr>
